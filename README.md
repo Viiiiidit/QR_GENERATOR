@@ -289,6 +289,12 @@ Detailed test coverage, verification methods, and step-by-step audit logs are av
 
 ---
 
+## 👨‍💻 Author
+
+**Made by - Vidit Srivastava**
+
+---
+
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE) — free for personal, commercial, and educational use.

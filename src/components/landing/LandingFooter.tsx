@@ -23,6 +23,12 @@ export const LandingFooter: React.FC<LandingFooterProps> = ({ onStartGenerating 
           </div>
         </div>
 
+        <div className="text-center sm:text-left">
+          <p className="text-slate-300 font-medium text-xs sm:text-sm">
+            Made by - Vidit Srivastava
+          </p>
+        </div>
+
         <div className="flex items-center gap-6 text-slate-400">
           <button
             type="button"

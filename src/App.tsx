@@ -128,7 +128,11 @@ export const App: React.FC = () => {
       </main>
 
       <footer className="border-t border-teal-950/60 py-5 bg-[#070b0e] text-center text-xs text-slate-400">
-        <p>QR Studio &bull; Precision Vector Generator &bull; 100% Client-Side</p>
+        <p className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2">
+          <span>QR Studio &bull; Precision Vector Generator &bull; 100% Client-Side</span>
+          <span className="hidden sm:inline text-slate-700">&bull;</span>
+          <span className="text-slate-300 font-medium">Made by - Vidit Srivastava</span>
+        </p>
       </footer>
     </div>
   );
