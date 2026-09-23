@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Header, FormPanel, PreviewPanel } from './components';
+import { useQRSettings } from './hooks';
 import type { FormState } from './types';
 import { getQRDataString } from './utils';
 
@@ -23,6 +24,9 @@ const INITIAL_FORM_STATE: FormState = {
 export const App: React.FC = () => {
   const [formState, setFormState] = useState<FormState>(INITIAL_FORM_STATE);
 
+  // Customization and Presets state hook
+  const { settings, activePresetId, updateSetting, applyPreset } = useQRSettings();
+
   // Compute the current QR payload based on the active type and fields
   const qrData = useMemo(() => {
     return getQRDataString(formState);
@@ -38,8 +42,15 @@ export const App: React.FC = () => {
             - Mobile: Stacked vertically with Preview above Form via flex ordering
         */}
         <div className="flex flex-col lg:flex-row gap-6 items-start">
-          <FormPanel formState={formState} onChange={setFormState} />
-          <PreviewPanel qrData={qrData} type={formState.type} />
+          <FormPanel
+            formState={formState}
+            onChange={setFormState}
+            settings={settings}
+            activePresetId={activePresetId}
+            onUpdateSetting={updateSetting}
+            onApplyPreset={applyPreset}
+          />
+          <PreviewPanel qrData={qrData} type={formState.type} settings={settings} />
         </div>
       </main>
 
