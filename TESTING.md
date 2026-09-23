@@ -171,4 +171,50 @@ Automated browser execution conducted via headless Microsoft Edge Chromium DevTo
 }
 ```
 
-**Overall Status: 16/16 Test Items Passed (100%)**
+---
+
+## 8. Landing Page & Route Navigation Suite
+
+| # | Feature / Test Item | Verification Method | Expected Result | Result |
+|---|---------------------|---------------------|-----------------|--------|
+| 17 | **Hero Headline & Copy** | Inspect H1 text on initial load (`#home`) | Original 2-line headline "Identity in every pixel. / From destination to scan, crafted beautifully." rendered with off-white styling | **PASS** |
+| 18 | **Hero Visual Background** | Inspect hero section backdrop | Atmospheric deep teal & charcoal gradient with noise grain overlay and subtle mountain silhouette | **PASS** |
+| 19 | **Landing Navigation** | Inspect top navbar elements | Brand wordmark ("QR Studio"), links (Features, How it works, FAQ), and pill "Get Started" CTA | **PASS** |
+| 20 | **Scroll Indicator** | Inspect bottom of hero section | "Scroll to explore" indicator with chevron and bouncing keyframe animation | **PASS** |
+| 21 | **Primary Hero CTA Route** | Click "Start Generating" button (`#hero-cta-btn`) | URL hash updates to `#generator`, view seamlessly switches to functional generator layout | **PASS** |
+| 22 | **Features Section Eyebrow & Headline** | Inspect `#features` header | Eyebrow badge "Introducing QR Studio" and bold 2-line value proposition rendered | **PASS** |
+| 23 | **3-Card Features Grid** | Inspect cards with hover glow | Exactly 3 dark cards with border glow rendered: 1) Customization Controls mockup, 2) Live Preview & Audit mockup, 3) Recent Archives mockup | **PASS** |
+| 24 | **How It Works 3-Step Flow** | Inspect `#how-it-works` | 3 sequential workflow steps (Select & Input, Style & Calibrate, Export & Deploy) with number pills | **PASS** |
+| 25 | **Interactive FAQ Section** | Expand/collapse FAQ accordions | Clean expandable answers for durability, formats, contrast ratios, and offline privacy | **PASS** |
+| 26 | **Generator to Home Return** | Click "Home" link in Generator header | Hash updates to `#home`, smooth scroll back to top of landing page without reloading | **PASS** |
+
+### Automated Run Summary
+```json
+{
+  "landingHeroHeadline": true,
+  "landingFeatures3Cards": true,
+  "landingScrollIndicator": true,
+  "navigatedToGenerator": true,
+  "initialPlaceholder": true,
+  "urlQR": true,
+  "textQR": true,
+  "emailQR": true,
+  "phoneQR": true,
+  "wifiQR": true,
+  "presetOcean": true,
+  "presetSunset": true,
+  "sizeSlider": true,
+  "contrastWarning": true,
+  "marginAndEccWarning": true,
+  "inlineErrorAndDisabledDl": true,
+  "recentCodeSaved": true,
+  "recentCodeRestored": true,
+  "resp375": true,
+  "resp768": true,
+  "resp1440": true,
+  "navigatedBackToHome": true
+}
+```
+
+**Overall Status: 22/22 Automated Browser Tests Passed (100%)**
+
