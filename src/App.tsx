@@ -1,7 +1,33 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { Header, FormPanel, PreviewPanel } from './components';
+import type { FormState } from './types';
+import { getQRDataString } from './utils';
+
+const INITIAL_FORM_STATE: FormState = {
+  type: 'url',
+  url: '',
+  text: '',
+  email: {
+    to: '',
+    subject: '',
+    body: '',
+  },
+  phone: '',
+  wifi: {
+    ssid: '',
+    password: '',
+    encryption: 'WPA',
+  },
+};
 
 export const App: React.FC = () => {
+  const [formState, setFormState] = useState<FormState>(INITIAL_FORM_STATE);
+
+  // Compute the current QR payload based on the active type and fields
+  const qrData = useMemo(() => {
+    return getQRDataString(formState);
+  }, [formState]);
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col text-slate-800">
       <Header />
@@ -12,8 +38,8 @@ export const App: React.FC = () => {
             - Mobile: Stacked vertically with Preview above Form via flex ordering
         */}
         <div className="flex flex-col lg:flex-row gap-6 items-start">
-          <FormPanel />
-          <PreviewPanel />
+          <FormPanel formState={formState} onChange={setFormState} />
+          <PreviewPanel qrData={qrData} type={formState.type} />
         </div>
       </main>
 

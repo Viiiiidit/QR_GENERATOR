@@ -1,11 +1,24 @@
-// Type definitions for QR Code Generator
-export type QRErrorCorrectionLevel = 'L' | 'M' | 'Q' | 'H';
+export type QRType = 'url' | 'text' | 'email' | 'phone' | 'wifi';
 
-export interface QRConfig {
-  value: string;
-  size: number;
-  fgColor: string;
-  bgColor: string;
-  level: QRErrorCorrectionLevel;
-  includeMargin: boolean;
+export type WifiEncryption = 'WPA' | 'WEP' | 'nopass';
+
+export interface EmailData {
+  to: string;
+  subject: string;
+  body: string;
+}
+
+export interface WifiData {
+  ssid: string;
+  password: string;
+  encryption: WifiEncryption;
+}
+
+export interface FormState {
+  type: QRType;
+  url: string;
+  text: string;
+  email: EmailData;
+  phone: string;
+  wifi: WifiData;
 }
