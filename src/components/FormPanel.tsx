@@ -474,16 +474,18 @@ export const FormPanel: React.FC<FormPanelProps> = ({
                   {settings.size}px
                 </span>
               </div>
-              <input
-                id="qr-size-slider"
-                type="range"
-                min="150"
-                max="500"
-                step="10"
-                value={settings.size}
-                onChange={(e) => onUpdateSetting('size', Number(e.target.value))}
-                className="w-full accent-slate-900 cursor-pointer h-2 bg-slate-200 rounded-lg appearance-none"
-              />
+              <div className="py-1">
+                <input
+                  id="qr-size-slider"
+                  type="range"
+                  min="150"
+                  max="500"
+                  step="10"
+                  value={settings.size}
+                  onChange={(e) => onUpdateSetting('size', Number(e.target.value))}
+                  className="w-full accent-slate-900 cursor-pointer h-2.5 bg-slate-200 rounded-lg appearance-none touch-manipulation"
+                />
+              </div>
               <div className="flex justify-between text-[10px] text-slate-400 mt-1">
                 <span>150px</span>
                 <span>500px</span>
@@ -503,14 +505,14 @@ export const FormPanel: React.FC<FormPanelProps> = ({
                     type="color"
                     value={settings.fgColor}
                     onChange={(e) => onUpdateSetting('fgColor', e.target.value)}
-                    className="w-9 h-9 rounded-xl border border-slate-300 p-0.5 cursor-pointer bg-white shrink-0 shadow-2xs"
+                    className="w-10 h-10 min-w-[40px] rounded-xl border border-slate-300 p-0.5 cursor-pointer bg-white shrink-0 shadow-2xs touch-manipulation"
                   />
                   <input
                     id="qr-fg-color-text"
                     type="text"
                     value={settings.fgColor}
                     onChange={(e) => onUpdateSetting('fgColor', e.target.value)}
-                    className="w-full px-2.5 py-1.5 font-mono text-xs text-slate-800 border border-slate-300 rounded-xl bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 shadow-2xs"
+                    className="w-full px-3 py-2 min-h-[40px] font-mono text-xs text-slate-800 border border-slate-300 rounded-xl bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 shadow-2xs"
                   />
                 </div>
               </div>
@@ -526,14 +528,14 @@ export const FormPanel: React.FC<FormPanelProps> = ({
                     type="color"
                     value={settings.bgColor}
                     onChange={(e) => onUpdateSetting('bgColor', e.target.value)}
-                    className="w-9 h-9 rounded-xl border border-slate-300 p-0.5 cursor-pointer bg-white shrink-0 shadow-2xs"
+                    className="w-10 h-10 min-w-[40px] rounded-xl border border-slate-300 p-0.5 cursor-pointer bg-white shrink-0 shadow-2xs touch-manipulation"
                   />
                   <input
                     id="qr-bg-color-text"
                     type="text"
                     value={settings.bgColor}
                     onChange={(e) => onUpdateSetting('bgColor', e.target.value)}
-                    className="w-full px-2.5 py-1.5 font-mono text-xs text-slate-800 border border-slate-300 rounded-xl bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 shadow-2xs"
+                    className="w-full px-3 py-2 min-h-[40px] font-mono text-xs text-slate-800 border border-slate-300 rounded-xl bg-white focus:outline-none focus:ring-1 focus:ring-slate-900 shadow-2xs"
                   />
                 </div>
               </div>
@@ -595,16 +597,18 @@ export const FormPanel: React.FC<FormPanelProps> = ({
                   {settings.margin}px
                 </span>
               </div>
-              <input
-                id="qr-margin-slider"
-                type="range"
-                min="0"
-                max="40"
-                step="2"
-                value={settings.margin}
-                onChange={(e) => onUpdateSetting('margin', Number(e.target.value))}
-                className="w-full accent-slate-900 cursor-pointer h-2 bg-slate-200 rounded-lg appearance-none"
-              />
+              <div className="py-1">
+                <input
+                  id="qr-margin-slider"
+                  type="range"
+                  min="0"
+                  max="40"
+                  step="2"
+                  value={settings.margin}
+                  onChange={(e) => onUpdateSetting('margin', Number(e.target.value))}
+                  className="w-full accent-slate-900 cursor-pointer h-2.5 bg-slate-200 rounded-lg appearance-none touch-manipulation"
+                />
+              </div>
               <div className="flex justify-between text-[10px] text-slate-400 mt-1">
                 <span>0px</span>
                 <span>40px</span>

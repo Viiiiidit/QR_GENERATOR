@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
-import { Header, FormPanel, PreviewPanel } from './components';
-import { useQRSettings } from './hooks';
-import type { FormState } from './types';
+import { Header, FormPanel, PreviewPanel, RecentQRCodes } from './components';
+import { useQRSettings, useRecentQRCodes } from './hooks';
+import type { FormState, QRSettings } from './types';
 import { getQRDataString, validateActiveType } from './utils';
 
 const INITIAL_FORM_STATE: FormState = {
@@ -25,7 +25,16 @@ export const App: React.FC = () => {
   const [formState, setFormState] = useState<FormState>(INITIAL_FORM_STATE);
 
   // Customization and Presets state hook
-  const { settings, activePresetId, updateSetting, applyPreset } = useQRSettings();
+  const {
+    settings,
+    activePresetId,
+    updateSetting,
+    applyPreset,
+    restoreSettings,
+  } = useQRSettings();
+
+  // Recent QR codes persistence hook
+  const { recentCodes, addRecentCode, clearRecentCodes } = useRecentQRCodes();
 
   // Validate active type inputs
   const validation = useMemo(() => {
@@ -36,6 +45,15 @@ export const App: React.FC = () => {
   const qrData = useMemo(() => {
     return getQRDataString(formState);
   }, [formState]);
+
+  // Restore configuration from recent codes
+  const handleRestoreConfiguration = (
+    savedFormState: FormState,
+    savedSettings: QRSettings
+  ) => {
+    setFormState(savedFormState);
+    restoreSettings(savedSettings);
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col text-slate-800">
@@ -60,8 +78,16 @@ export const App: React.FC = () => {
             type={formState.type}
             settings={settings}
             isValid={validation.isValid}
+            onDownloadSuccess={() => addRecentCode(formState, settings)}
           />
         </div>
+
+        {/* Recent QR Codes section */}
+        <RecentQRCodes
+          recentCodes={recentCodes}
+          onSelect={handleRestoreConfiguration}
+          onClear={clearRecentCodes}
+        />
       </main>
 
       <footer className="border-t border-slate-200/60 py-4 bg-white/50 text-center text-xs text-slate-400">

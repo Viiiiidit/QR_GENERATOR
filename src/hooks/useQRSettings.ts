@@ -8,6 +8,7 @@ export interface UseQRSettingsReturn {
   updateSetting: <K extends keyof QRSettings>(key: K, value: QRSettings[K]) => void;
   applyPreset: (preset: QRPreset) => void;
   resetSettings: () => void;
+  restoreSettings: (settings: QRSettings) => void;
 }
 
 export function useQRSettings(
@@ -68,11 +69,17 @@ export function useQRSettings(
     setActivePresetId(null);
   }, []);
 
+  const restoreSettings = useCallback((newSettings: QRSettings) => {
+    setSettings(newSettings);
+    setActivePresetId(null);
+  }, []);
+
   return {
     settings,
     activePresetId,
     updateSetting,
     applyPreset,
     resetSettings,
+    restoreSettings,
   };
 }

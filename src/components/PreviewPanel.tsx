@@ -16,6 +16,7 @@ interface PreviewPanelProps {
   type: QRType;
   settings: QRSettings;
   isValid: boolean;
+  onDownloadSuccess?: () => void;
 }
 
 const TYPE_LABELS: Record<QRType, string> = {
@@ -31,6 +32,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
   type,
   settings,
   isValid,
+  onDownloadSuccess,
 }) => {
   const [downloading, setDownloading] = useState<'png' | 'svg' | null>(null);
 
@@ -61,6 +63,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
         name: filename,
         extension,
       });
+      onDownloadSuccess?.();
     } catch (err) {
       console.error('Failed to download QR code:', err);
     } finally {

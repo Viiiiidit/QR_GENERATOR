@@ -60,3 +60,12 @@ export interface QRPreset {
     gradientCss?: string;
   };
 }
+
+export interface RecentQRCode {
+  id: string;
+  timestamp: number;
+  label: string;
+  type: QRType;
+  formState: FormState;
+  settings: QRSettings;
+}
