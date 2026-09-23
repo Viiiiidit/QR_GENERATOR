@@ -12,10 +12,18 @@ import {
   Palette,
   Sparkles,
   HelpCircle,
+  AlertCircle,
 } from 'lucide-react';
 import type { ErrorCorrectionLevel } from 'qr-code-styling';
 import type { FormState, QRPreset, QRSettings, QRType, WifiEncryption } from '../types';
-import { QR_PRESETS } from '../utils';
+import {
+  QR_PRESETS,
+  isValidEmail,
+  isValidPhone,
+  isValidUrl,
+  isValidWifiSsid,
+  isValidText,
+} from '../utils';
 
 interface FormPanelProps {
   formState: FormState;
@@ -43,16 +51,24 @@ export const FormPanel: React.FC<FormPanelProps> = ({
   onApplyPreset,
 }) => {
   const [showWifiPassword, setShowWifiPassword] = useState(false);
+  // Track which input fields the user has interacted with
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  const markTouched = (field: string) => {
+    setTouched((prev) => (prev[field] ? prev : { ...prev, [field]: true }));
+  };
 
   const handleTypeChange = (type: QRType) => {
     onChange((prev) => ({ ...prev, type }));
   };
 
   const handleFieldChange = <K extends keyof FormState>(field: K, value: FormState[K]) => {
+    markTouched(String(field));
     onChange((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleEmailChange = (field: keyof FormState['email'], value: string) => {
+    markTouched(`email.${field}`);
     onChange((prev) => ({
       ...prev,
       email: {
@@ -63,6 +79,7 @@ export const FormPanel: React.FC<FormPanelProps> = ({
   };
 
   const handleWifiChange = (field: keyof FormState['wifi'], value: string | WifiEncryption) => {
+    markTouched(`wifi.${field}`);
     onChange((prev) => ({
       ...prev,
       wifi: {
@@ -71,6 +88,35 @@ export const FormPanel: React.FC<FormPanelProps> = ({
       },
     }));
   };
+
+  // Validation calculations for touched fields
+  const urlError = React.useMemo(() => {
+    if (!formState.url.trim()) return 'Website URL is required';
+    if (!isValidUrl(formState.url)) return 'Please enter a valid website URL (e.g. example.com or https://...)';
+    return null;
+  }, [formState.url]);
+
+  const textError = React.useMemo(() => {
+    if (!isValidText(formState.text)) return 'Plain text content cannot be empty';
+    return null;
+  }, [formState.text]);
+
+  const emailToError = React.useMemo(() => {
+    if (!formState.email.to.trim()) return 'Recipient email address is required';
+    if (!isValidEmail(formState.email.to)) return 'Please enter a valid email address (e.g. name@domain.com)';
+    return null;
+  }, [formState.email.to]);
+
+  const phoneError = React.useMemo(() => {
+    if (!formState.phone.trim()) return 'Phone number is required';
+    if (!isValidPhone(formState.phone)) return 'Please enter a valid phone number (at least 7 digits, e.g. +1 555-123-4567)';
+    return null;
+  }, [formState.phone]);
+
+  const wifiSsidError = React.useMemo(() => {
+    if (!isValidWifiSsid(formState.wifi.ssid)) return 'Network SSID is required and cannot be empty';
+    return null;
+  }, [formState.wifi.ssid]);
 
   return (
     <section
@@ -118,7 +164,7 @@ export const FormPanel: React.FC<FormPanelProps> = ({
             })}
           </div>
 
-          {/* Dynamic Form Inputs */}
+          {/* Dynamic Form Inputs with Inline Errors */}
           <div className="mt-4 pt-4 border-t border-slate-100">
             {formState.type === 'url' && (
               <div className="space-y-4">
@@ -128,15 +174,27 @@ export const FormPanel: React.FC<FormPanelProps> = ({
                   </label>
                   <input
                     id="qr-url-input"
-                    type="url"
+                    type="text"
                     value={formState.url}
+                    onBlur={() => markTouched('url')}
                     onChange={(e) => handleFieldChange('url', e.target.value)}
-                    placeholder="https://example.com"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all placeholder:text-slate-400 shadow-2xs"
+                    placeholder="example.com or https://..."
+                    className={`w-full px-3.5 py-2.5 rounded-xl border text-slate-900 text-sm focus:outline-none transition-all placeholder:text-slate-400 shadow-2xs ${
+                      touched['url'] && urlError
+                        ? 'border-rose-400 bg-rose-50/20 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500'
+                        : 'border-slate-300 bg-white focus:ring-2 focus:ring-slate-900 focus:border-slate-900'
+                    }`}
                   />
-                  <p className="mt-1.5 text-xs text-slate-400">
-                    Include <code>https://</code> for best scanning compatibility.
-                  </p>
+                  {touched['url'] && urlError ? (
+                    <p id="qr-url-error" className="mt-1.5 text-xs text-rose-500 font-medium flex items-center gap-1">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>{urlError}</span>
+                    </p>
+                  ) : (
+                    <p className="mt-1.5 text-xs text-slate-400">
+                      Supports URLs with or without <code>https://</code>.
+                    </p>
+                  )}
                 </div>
               </div>
             )}
@@ -151,13 +209,25 @@ export const FormPanel: React.FC<FormPanelProps> = ({
                     id="qr-text-input"
                     type="text"
                     value={formState.text}
+                    onBlur={() => markTouched('text')}
                     onChange={(e) => handleFieldChange('text', e.target.value)}
                     placeholder="Enter any text, code, or message..."
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all placeholder:text-slate-400 shadow-2xs"
+                    className={`w-full px-3.5 py-2.5 rounded-xl border text-slate-900 text-sm focus:outline-none transition-all placeholder:text-slate-400 shadow-2xs ${
+                      touched['text'] && textError
+                        ? 'border-rose-400 bg-rose-50/20 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500'
+                        : 'border-slate-300 bg-white focus:ring-2 focus:ring-slate-900 focus:border-slate-900'
+                    }`}
                   />
-                  <p className="mt-1.5 text-xs text-slate-400">
-                    Characters will be directly encoded as-is into the QR code.
-                  </p>
+                  {touched['text'] && textError ? (
+                    <p id="qr-text-error" className="mt-1.5 text-xs text-rose-500 font-medium flex items-center gap-1">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>{textError}</span>
+                    </p>
+                  ) : (
+                    <p className="mt-1.5 text-xs text-slate-400">
+                      Characters will be directly encoded as-is into the QR code.
+                    </p>
+                  )}
                 </div>
               </div>
             )}
@@ -172,10 +242,21 @@ export const FormPanel: React.FC<FormPanelProps> = ({
                     id="qr-email-to"
                     type="email"
                     value={formState.email.to}
+                    onBlur={() => markTouched('email.to')}
                     onChange={(e) => handleEmailChange('to', e.target.value)}
                     placeholder="alex@example.com"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all placeholder:text-slate-400 shadow-2xs"
+                    className={`w-full px-3.5 py-2.5 rounded-xl border text-slate-900 text-sm focus:outline-none transition-all placeholder:text-slate-400 shadow-2xs ${
+                      touched['email.to'] && emailToError
+                        ? 'border-rose-400 bg-rose-50/20 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500'
+                        : 'border-slate-300 bg-white focus:ring-2 focus:ring-slate-900 focus:border-slate-900'
+                    }`}
                   />
+                  {touched['email.to'] && emailToError && (
+                    <p id="qr-email-to-error" className="mt-1.5 text-xs text-rose-500 font-medium flex items-center gap-1">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>{emailToError}</span>
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -218,13 +299,25 @@ export const FormPanel: React.FC<FormPanelProps> = ({
                     id="qr-phone-input"
                     type="tel"
                     value={formState.phone}
+                    onBlur={() => markTouched('phone')}
                     onChange={(e) => handleFieldChange('phone', e.target.value)}
                     placeholder="+1 (555) 234-5678"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all placeholder:text-slate-400 shadow-2xs"
+                    className={`w-full px-3.5 py-2.5 rounded-xl border text-slate-900 text-sm focus:outline-none transition-all placeholder:text-slate-400 shadow-2xs ${
+                      touched['phone'] && phoneError
+                        ? 'border-rose-400 bg-rose-50/20 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500'
+                        : 'border-slate-300 bg-white focus:ring-2 focus:ring-slate-900 focus:border-slate-900'
+                    }`}
                   />
-                  <p className="mt-1.5 text-xs text-slate-400">
-                    Include country code (e.g. <code>+1</code>) for international dialing.
-                  </p>
+                  {touched['phone'] && phoneError ? (
+                    <p id="qr-phone-error" className="mt-1.5 text-xs text-rose-500 font-medium flex items-center gap-1">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>{phoneError}</span>
+                    </p>
+                  ) : (
+                    <p className="mt-1.5 text-xs text-slate-400">
+                      Accepts standard national or international formats with country codes.
+                    </p>
+                  )}
                 </div>
               </div>
             )}
@@ -239,10 +332,21 @@ export const FormPanel: React.FC<FormPanelProps> = ({
                     id="qr-wifi-ssid"
                     type="text"
                     value={formState.wifi.ssid}
+                    onBlur={() => markTouched('wifi.ssid')}
                     onChange={(e) => handleWifiChange('ssid', e.target.value)}
                     placeholder="e.g. Office_Guest_WiFi"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all placeholder:text-slate-400 shadow-2xs"
+                    className={`w-full px-3.5 py-2.5 rounded-xl border text-slate-900 text-sm focus:outline-none transition-all placeholder:text-slate-400 shadow-2xs ${
+                      touched['wifi.ssid'] && wifiSsidError
+                        ? 'border-rose-400 bg-rose-50/20 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500'
+                        : 'border-slate-300 bg-white focus:ring-2 focus:ring-slate-900 focus:border-slate-900'
+                    }`}
                   />
+                  {touched['wifi.ssid'] && wifiSsidError && (
+                    <p id="qr-wifi-ssid-error" className="mt-1.5 text-xs text-rose-500 font-medium flex items-center gap-1">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>{wifiSsidError}</span>
+                    </p>
+                  )}
                 </div>
 
                 <div>

@@ -1,10 +1,15 @@
 import type { EmailData, FormState, WifiData } from '../types';
+import { normalizeUrl } from './validation';
 
 /**
- * Converts a URL string to QR-encodable format (passed through as-is).
+ * Converts a URL string to QR-encodable format (normalized with protocol).
  */
 export function encodeUrl(url: string): string {
-  return url.trim();
+  const trimmed = url.trim();
+  if (!trimmed) {
+    return '';
+  }
+  return normalizeUrl(trimmed);
 }
 
 /**

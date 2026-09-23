@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Header, FormPanel, PreviewPanel } from './components';
 import { useQRSettings } from './hooks';
 import type { FormState } from './types';
-import { getQRDataString } from './utils';
+import { getQRDataString, validateActiveType } from './utils';
 
 const INITIAL_FORM_STATE: FormState = {
   type: 'url',
@@ -27,6 +27,11 @@ export const App: React.FC = () => {
   // Customization and Presets state hook
   const { settings, activePresetId, updateSetting, applyPreset } = useQRSettings();
 
+  // Validate active type inputs
+  const validation = useMemo(() => {
+    return validateActiveType(formState);
+  }, [formState]);
+
   // Compute the current QR payload based on the active type and fields
   const qrData = useMemo(() => {
     return getQRDataString(formState);
@@ -50,7 +55,12 @@ export const App: React.FC = () => {
             onUpdateSetting={updateSetting}
             onApplyPreset={applyPreset}
           />
-          <PreviewPanel qrData={qrData} type={formState.type} settings={settings} />
+          <PreviewPanel
+            qrData={qrData}
+            type={formState.type}
+            settings={settings}
+            isValid={validation.isValid}
+          />
         </div>
       </main>
 

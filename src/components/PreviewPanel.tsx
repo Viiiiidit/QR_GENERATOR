@@ -1,13 +1,21 @@
 import React, { useMemo, useState } from 'react';
-import { Eye, QrCode as QrCodeIcon, Loader2, Download, FileCode } from 'lucide-react';
+import {
+  Eye,
+  QrCode as QrCodeIcon,
+  Loader2,
+  Download,
+  FileCode,
+  AlertTriangle,
+} from 'lucide-react';
 import { useQRCode } from '../hooks';
 import type { QRSettings, QRType } from '../types';
-import { buildQRCodeOptions } from '../utils';
+import { buildQRCodeOptions, checkScannabilityWarnings } from '../utils';
 
 interface PreviewPanelProps {
   qrData: string;
   type: QRType;
   settings: QRSettings;
+  isValid: boolean;
 }
 
 const TYPE_LABELS: Record<QRType, string> = {
@@ -18,12 +26,22 @@ const TYPE_LABELS: Record<QRType, string> = {
   wifi: 'Wi-Fi Network',
 };
 
-export const PreviewPanel: React.FC<PreviewPanelProps> = ({ qrData, type, settings }) => {
+export const PreviewPanel: React.FC<PreviewPanelProps> = ({
+  qrData,
+  type,
+  settings,
+  isValid,
+}) => {
   const [downloading, setDownloading] = useState<'png' | 'svg' | null>(null);
 
-  // Build QR options from the current customization settings immediately
+  // Build QR options from current customization settings immediately
   const qrOptions = useMemo(() => {
     return buildQRCodeOptions(settings);
+  }, [settings]);
+
+  // Compute non-blocking scannability risk warnings (contrast, margin, ECC)
+  const scannabilityWarnings = useMemo(() => {
+    return checkScannabilityWarnings(settings);
   }, [settings]);
 
   const { containerRef, qrCodeRef, hasData, debouncedData, isDebouncing } = useQRCode({
@@ -33,7 +51,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ qrData, type, settin
   });
 
   const handleDownload = async (extension: 'png' | 'svg') => {
-    if (!qrCodeRef.current || !hasData) return;
+    if (!qrCodeRef.current || !hasData || !isValid) return;
 
     try {
       setDownloading(extension);
@@ -49,6 +67,8 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ qrData, type, settin
       setDownloading(null);
     }
   };
+
+  const isDownloadDisabled = !hasData || !isValid || downloading !== null;
 
   return (
     <section
@@ -82,7 +102,42 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ qrData, type, settin
         </div>
 
         {/* Preview Area */}
-        <div className="flex-1 flex flex-col items-center justify-center py-6">
+        <div className="flex-1 flex flex-col items-center justify-center py-5">
+          {/* Non-blocking Scannability Warning Banner */}
+          {scannabilityWarnings.length > 0 && (
+            <div
+              id="scannability-warning-banner"
+              role="status"
+              className="w-full mb-5 p-3.5 sm:p-4 rounded-xl bg-amber-50/90 border border-amber-200/90 text-amber-900 shadow-2xs animate-in fade-in duration-200"
+            >
+              <div className="flex items-start gap-2.5">
+                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <h4 className="text-xs font-semibold text-amber-950">
+                      Scannability Advisory ({scannabilityWarnings.length} warning{scannabilityWarnings.length > 1 ? 's' : ''})
+                    </h4>
+                    <span className="text-[10px] font-medium text-amber-700 bg-amber-100/70 px-2 py-0.5 rounded">
+                      Advisory only
+                    </span>
+                  </div>
+
+                  <div className="space-y-2 pt-1 border-t border-amber-200/50">
+                    {scannabilityWarnings.map((warning) => (
+                      <div key={warning.id} className="text-xs space-y-0.5">
+                        <p className="font-semibold text-amber-900 text-[11px]">{warning.title}</p>
+                        <p className="text-amber-800 text-[11px] leading-relaxed">{warning.issue}</p>
+                        <p className="text-[11px] font-medium text-amber-900 bg-amber-100/60 rounded px-2 py-0.5 inline-block mt-0.5">
+                          💡 Suggestion: {warning.suggestion}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {hasData ? (
             <div className="flex flex-col items-center w-full animate-in fade-in duration-200">
               {/* QR Container Frame with scroll fallback for large sizes */}
@@ -105,19 +160,26 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ qrData, type, settin
                   {debouncedData}
                 </p>
                 <p className="text-[11px] text-slate-400 mt-0.5">
-                  Point phone camera or download below
+                  Point phone camera to scan and test
                 </p>
               </div>
 
+              {/* Validation Status message if input is invalid */}
+              {!isValid && (
+                <p className="mt-3 text-xs text-rose-500 font-medium text-center">
+                  ⚠️ Complete the required field in the form to enable download
+                </p>
+              )}
+
               {/* Download Buttons Row */}
-              <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-sm">
+              <div className="mt-5 flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-sm">
                 <button
                   type="button"
                   id="btn-download-png"
-                  disabled={!hasData || downloading !== null}
+                  disabled={isDownloadDisabled}
                   onClick={() => handleDownload('png')}
                   className={`flex-1 w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium text-xs transition-all ${
-                    !hasData || downloading !== null
+                    isDownloadDisabled
                       ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed'
                       : 'bg-slate-900 text-white hover:bg-slate-800 shadow-xs active:scale-[0.98]'
                   }`}
@@ -133,10 +195,10 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ qrData, type, settin
                 <button
                   type="button"
                   id="btn-download-svg"
-                  disabled={!hasData || downloading !== null}
+                  disabled={isDownloadDisabled}
                   onClick={() => handleDownload('svg')}
                   className={`flex-1 w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium text-xs transition-all ${
-                    !hasData || downloading !== null
+                    isDownloadDisabled
                       ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed'
                       : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 hover:text-slate-900 shadow-2xs active:scale-[0.98]'
                   }`}
