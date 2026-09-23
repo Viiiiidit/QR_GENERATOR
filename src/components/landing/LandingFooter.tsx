@@ -1,5 +1,5 @@
 import React from 'react';
-import { QrCode, ArrowUp } from 'lucide-react';
+import { QrCode, ArrowUp, ExternalLink } from 'lucide-react';
 
 interface LandingFooterProps {
   onStartGenerating: () => void;
@@ -24,8 +24,17 @@ export const LandingFooter: React.FC<LandingFooterProps> = ({ onStartGenerating 
         </div>
 
         <div className="text-center sm:text-left">
-          <p className="text-slate-300 font-medium text-xs sm:text-sm">
-            Made by - Vidit Srivastava
+          <p className="text-slate-400 text-xs sm:text-sm flex items-center justify-center sm:justify-start gap-1.5">
+            <span>Made by -</span>
+            <a
+              href="https://github.com/Viiiiidit"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-teal-400 hover:text-teal-300 font-medium transition-colors inline-flex items-center gap-1 underline underline-offset-4 decoration-teal-500/50 hover:decoration-teal-300 cursor-pointer"
+            >
+              <span>Vidit Srivastava</span>
+              <ExternalLink className="w-3.5 h-3.5 inline-block" />
+            </a>
           </p>
         </div>
 

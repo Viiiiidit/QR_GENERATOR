@@ -131,7 +131,17 @@ export const App: React.FC = () => {
         <p className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2">
           <span>QR Studio &bull; Precision Vector Generator &bull; 100% Client-Side</span>
           <span className="hidden sm:inline text-slate-700">&bull;</span>
-          <span className="text-slate-300 font-medium">Made by - Vidit Srivastava</span>
+          <span>
+            Made by -{' '}
+            <a
+              href="https://github.com/Viiiiidit"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-teal-400 hover:text-teal-300 font-medium transition-colors underline underline-offset-4 decoration-teal-500/50 hover:decoration-teal-300 cursor-pointer"
+            >
+              Vidit Srivastava
+            </a>
+          </span>
         </p>
       </footer>
     </div>
